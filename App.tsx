@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import { Room } from './pages/Room';
+import { TeacherRoom } from './pages/TeacherRoom';
 import { TeacherPlanner } from './pages/TeacherPlanner';
 import { TeacherHub } from './pages/TeacherHub';
 import { LoginPage } from './pages/LoginPage';
 import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
 import { WorkspaceAdminDashboard } from './pages/WorkspaceAdminDashboard';
+import { StudentDashboard } from './pages/StudentDashboard';
 import { InstallerPage } from './pages/InstallerPage';
 import { ApiService } from './services/api';
 
@@ -39,8 +41,14 @@ const App: React.FC = () => {
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
         <Route path="/workspace-admin" element={<WorkspaceAdminDashboard />} />
         <Route path="/teacher-hub" element={<TeacherHub />} />
+        <Route path="/student-hub" element={<StudentDashboard />} />
         
+        {/* Student Room (Optimized for Mobile/Students) */}
         <Route path="/room/:roomId" element={<Room />} />
+        
+        {/* Dedicated Teacher Studio (Desktop/Pro features) */}
+        <Route path="/teacher-room/:roomId" element={<TeacherRoom />} />
+        
         <Route path="/planner" element={<TeacherPlanner />} />
         
         <Route path="*" element={<Navigate to="/" replace />} />

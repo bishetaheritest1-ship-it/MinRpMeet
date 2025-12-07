@@ -21,6 +21,16 @@ export interface Teacher {
   email: string; // Used for login identification
   subject: string;
   password?: string;
+  avatar?: string;
+}
+
+export interface Student {
+  id: string;
+  name: string;
+  username: string; // Used for login
+  gradeLevel: string;
+  parentPhone?: string;
+  avatar?: string;
 }
 
 export type ActivityType = 'IDLE' | 'WATCHING_VIDEO' | 'SOLVING_EXERCISE' | 'SUBMITTING_ASSIGNMENT' | 'TAKING_QUIZ';
@@ -132,15 +142,22 @@ export interface ToolbarConfig {
 }
 
 export interface ScheduledClass {
-  id: string;
+  id: string; // Creates a room ID
   title: string;
   date: string; // ISO String or specific format
   time: string;
   studentCount: number;
   status: 'UPCOMING' | 'COMPLETED' | 'LIVE';
+  teacherId?: string;
 }
 
 // --- NEW TYPES FOR ADMIN & WORKSPACE ---
+
+export interface WeeklySchedule {
+  dayOfWeek: number; // 0 = Sunday (Shanbeh in our context logic), 1 = Monday...
+  startTime: string; // "14:00"
+  endTime: string;   // "15:30"
+}
 
 export interface ClassLicense {
   id: string;
@@ -152,6 +169,11 @@ export interface ClassLicense {
   renewPeriod: 'DAILY' | 'WEEKLY';
   costPerPeriod: number;
   isActive: boolean;
+  
+  // Assignment Logic
+  teacherId?: string;
+  studentIds?: string[];
+  schedule?: WeeklySchedule[];
 }
 
 export interface Workspace {

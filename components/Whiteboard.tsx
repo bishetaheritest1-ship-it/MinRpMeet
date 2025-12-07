@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Eraser, Pen, Trash2, Download, X, Undo, Redo, MessageCircle, Check } from 'lucide-react';
 import { BoardComment } from '../types';
@@ -191,6 +192,16 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
             });
         }
     }
+    // Mobile student clicking on board with comment tool active
+    if (isReadOnly && tool === 'comment') {
+         const rect = canvasRef.current?.getBoundingClientRect();
+        if (rect) {
+            setNewCommentPos({
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            });
+        }
+    }
   };
 
   const submitComment = () => {
@@ -205,7 +216,8 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
           });
           setNewCommentPos(null);
           setCommentText('');
-          setTool('pen'); 
+          if(!isReadOnly) setTool('pen'); 
+          else setTool('pen'); // Reset to prevent accidental clicks
       }
   };
 
@@ -278,7 +290,7 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
             onTouchMove={draw}
             onTouchEnd={stopDrawing}
             onClick={handleCanvasClick}
-            className={`touch-none w-full h-full bg-white shadow-inner ${tool === 'comment' ? 'cursor-text' : 'cursor-crosshair'}`}
+            className={`touch-none w-full h-full bg-white shadow-inner ${tool === 'comment' ? 'cursor-text' : isReadOnly ? 'cursor-default' : 'cursor-crosshair'}`}
         />
 
         {/* Comment Markers */}
@@ -327,7 +339,7 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
             </div>
         )}
 
-        {/* Floating Toolbar */}
+        {/* Floating Toolbar (Teacher) */}
         {!isReadOnly && (
             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl p-2 flex items-center gap-3 animate-in slide-in-from-bottom-5 z-20">
                 <div className="flex gap-1">
@@ -352,22 +364,25 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
             </div>
         )}
 
+        {/* Floating Toolbar (Student - Add Question) */}
         {isReadOnly && (
-             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+             <div className="absolute bottom-20 md:bottom-6 left-1/2 transform -translate-x-1/2 z-20">
                 <button 
                     onClick={() => { if (!tool.includes('comment')) setTool('comment'); else setTool('pen'); }}
-                    className={`bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2 ${tool === 'comment' ? 'ring-2 ring-white' : ''}`}
+                    className={`bg-blue-600 text-white px-6 py-3 rounded-full shadow-xl hover:bg-blue-700 flex items-center gap-3 transition-all ${tool === 'comment' ? 'ring-4 ring-blue-300 scale-105' : 'hover:scale-105'}`}
                 >
-                    <MessageCircle size={18} />
-                    {tool === 'comment' ? 'برای نوشتن کلیک کنید' : 'افزودن سوال روی بورد'}
+                    <MessageCircle size={20} />
+                    <span className="font-bold">{tool === 'comment' ? 'محل سوال را انتخاب کنید' : 'افزودن سوال روی تخته'}</span>
                 </button>
              </div>
         )}
 
         {/* Close Button (Top Left) */}
+        {!isReadOnly && (
         <button onClick={onClose} className="absolute top-4 left-4 p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded-full text-gray-600 dark:text-gray-300 hover:text-red-500 shadow-lg z-10">
             <X size={20} />
         </button>
+        )}
     </div>
   );
 };

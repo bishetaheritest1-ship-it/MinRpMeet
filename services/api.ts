@@ -1,5 +1,5 @@
 
-import { ClassResponse, CreateClassRequest, UserRole, Workspace, ClassLicense, Teacher, User } from '../types';
+import { ClassResponse, CreateClassRequest, UserRole, Workspace, ClassLicense, Teacher, Student, User } from '../types';
 
 // Helper to generate random IDs
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -10,7 +10,8 @@ const DB_KEYS = {
   WORKSPACE: 'classconnect_workspace',
   LICENSES: 'classconnect_licenses',
   USERS: 'classconnect_users',
-  TEACHERS: 'classconnect_teachers' 
+  TEACHERS: 'classconnect_teachers',
+  STUDENTS: 'classconnect_students' // New key
 };
 
 // Ensure default data exists if keys are missing (Fallback for dev/debug)
@@ -33,6 +34,9 @@ const ensureDB = () => {
   }
   if (!localStorage.getItem(DB_KEYS.TEACHERS)) {
     localStorage.setItem(DB_KEYS.TEACHERS, JSON.stringify([]));
+  }
+  if (!localStorage.getItem(DB_KEYS.STUDENTS)) {
+    localStorage.setItem(DB_KEYS.STUDENTS, JSON.stringify([]));
   }
 };
 
@@ -81,6 +85,7 @@ export const ApiService = {
       localStorage.setItem(DB_KEYS.WORKSPACE, JSON.stringify(defaultWorkspace));
       localStorage.setItem(DB_KEYS.LICENSES, JSON.stringify([]));
       localStorage.setItem(DB_KEYS.TEACHERS, JSON.stringify([]));
+      localStorage.setItem(DB_KEYS.STUDENTS, JSON.stringify([]));
   },
 
   // --- CLASSROOM METHODS ---
@@ -112,7 +117,16 @@ export const ApiService = {
     await new Promise(resolve => setTimeout(resolve, 200));
     ensureDB();
     const data = localStorage.getItem(DB_KEYS.WORKSPACE);
-    return data ? JSON.parse(data) : null;
+    const ws = data ? JSON.parse(data) : null;
+    
+    // Recalculate counts
+    if (ws) {
+        const teachers = JSON.parse(localStorage.getItem(DB_KEYS.TEACHERS) || '[]');
+        const students = JSON.parse(localStorage.getItem(DB_KEYS.STUDENTS) || '[]');
+        ws.teacherCount = teachers.length;
+        ws.studentCount = students.length;
+    }
+    return ws;
   },
 
   updateWalletBalance: async (newBalance: number): Promise<Workspace> => {
@@ -135,6 +149,8 @@ export const ApiService = {
     await new Promise(resolve => setTimeout(resolve, 400));
     ensureDB();
     const licenses: ClassLicense[] = JSON.parse(localStorage.getItem(DB_KEYS.LICENSES) || '[]');
+    // Ensure schedule array exists
+    if (!license.schedule) license.schedule = [];
     licenses.push(license);
     localStorage.setItem(DB_KEYS.LICENSES, JSON.stringify(licenses));
     return license;
@@ -183,6 +199,47 @@ export const ApiService = {
     let teachers: Teacher[] = JSON.parse(localStorage.getItem(DB_KEYS.TEACHERS) || '[]');
     teachers = teachers.filter(t => t.id !== id);
     localStorage.setItem(DB_KEYS.TEACHERS, JSON.stringify(teachers));
+  },
+  
+  // --- STUDENT METHODS ---
+
+  getStudents: async (): Promise<Student[]> => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    ensureDB();
+    const data = localStorage.getItem(DB_KEYS.STUDENTS);
+    return data ? JSON.parse(data) : [];
+  },
+
+  createStudent: async (student: Student): Promise<Student> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    ensureDB();
+    const students: Student[] = JSON.parse(localStorage.getItem(DB_KEYS.STUDENTS) || '[]');
+    students.push(student);
+    localStorage.setItem(DB_KEYS.STUDENTS, JSON.stringify(students));
+    return student;
+  },
+
+  deleteStudent: async (id: string): Promise<void> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    ensureDB();
+    let students: Student[] = JSON.parse(localStorage.getItem(DB_KEYS.STUDENTS) || '[]');
+    students = students.filter(s => s.id !== id);
+    localStorage.setItem(DB_KEYS.STUDENTS, JSON.stringify(students));
+  },
+
+  getStudentClasses: async (studentId: string): Promise<ClassLicense[]> => {
+    const licenses = await ApiService.getLicenses();
+    return licenses.filter(l => l.studentIds?.includes(studentId) && l.isActive);
+  },
+
+  getTeacherClasses: async (teacherEmail: string): Promise<ClassLicense[]> => {
+    // In a real app we'd use ID, but using email for mock matching
+    const teachers = await ApiService.getTeachers();
+    const teacher = teachers.find(t => t.email === teacherEmail);
+    if(!teacher) return [];
+    
+    const licenses = await ApiService.getLicenses();
+    return licenses.filter(l => l.teacherId === teacher.id);
   },
   
   getUsers: async (): Promise<User[]> => {

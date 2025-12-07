@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
-import { Shield, Layout, User, School, LogIn } from 'lucide-react';
+import { Shield, Layout, User, School, LogIn, GraduationCap } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => {
             <p className="text-blue-100 opacity-90">پلتفرم جامع مدیریت آموزش آنلاین با قابلیت‌های پیشرفته مدیریتی و نظارتی.</p>
           </div>
           <div className="z-10 text-xs text-blue-200 mt-8">
-            نسخه ۳.۲.۰ - اینترپرایز
+            نسخه ۳.۳.۰ - سیستم یکپارچه مدارس
           </div>
         </div>
 
@@ -31,33 +31,23 @@ export const LoginPage: React.FC = () => {
           <h2 className="text-2xl font-bold mb-6 text-center">ورود به پنل کاربری</h2>
           
           <div className="space-y-4">
+            
+            {/* Student Login */}
             <button 
-              onClick={() => navigate('/super-admin')}
-              className="w-full p-4 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-xl flex items-center gap-4 transition group"
+              onClick={() => navigate('/student-hub')}
+              className="w-full p-4 bg-yellow-500 hover:bg-yellow-400 text-black border border-yellow-600 rounded-xl flex items-center gap-4 transition group shadow-lg shadow-yellow-500/20"
             >
-              <div className="w-10 h-10 bg-purple-500/20 text-purple-400 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
-                <Shield size={20} />
+              <div className="w-10 h-10 bg-black/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                <GraduationCap size={20} />
               </div>
               <div className="text-right flex-1">
-                <div className="font-bold">سوپر ادمین</div>
-                <div className="text-xs text-gray-400">مدیریت کل سیستم و فضاها</div>
+                <div className="font-bold">پنل دانش‌آموز</div>
+                <div className="text-xs opacity-70">مشاهده برنامه و ورود به کلاس</div>
               </div>
-              <LogIn size={18} className="text-gray-500" />
+              <LogIn size={18} />
             </button>
 
-            <button 
-              onClick={() => navigate('/workspace-admin')}
-              className="w-full p-4 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-xl flex items-center gap-4 transition group"
-            >
-              <div className="w-10 h-10 bg-blue-500/20 text-blue-400 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
-                <School size={20} />
-              </div>
-              <div className="text-right flex-1">
-                <div className="font-bold">مدیر فضای کار (مدرسه)</div>
-                <div className="text-xs text-gray-400">شارژ کیف پول، تعریف معلم</div>
-              </div>
-              <LogIn size={18} className="text-gray-500" />
-            </button>
+            <div className="h-px bg-gray-700 my-2"></div>
 
             <button 
               onClick={() => navigate('/teacher-hub')}
@@ -68,14 +58,30 @@ export const LoginPage: React.FC = () => {
               </div>
               <div className="text-right flex-1">
                 <div className="font-bold">معلم / مدرس</div>
-                <div className="text-xs text-gray-400">برگزاری و مدیریت کلاس‌ها</div>
+                <div className="text-xs text-gray-400">مدیریت کلاس‌ها و تدریس</div>
               </div>
               <LogIn size={18} className="text-gray-500" />
             </button>
-          </div>
 
-          <div className="mt-8 text-center text-xs text-gray-500">
-            برای ورود دانش‌آموزان، از لینک اختصاصی کلاس استفاده کنید.
+             <button 
+              onClick={() => navigate('/workspace-admin')}
+              className="w-full p-4 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-xl flex items-center gap-4 transition group"
+            >
+              <div className="w-10 h-10 bg-blue-500/20 text-blue-400 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                <School size={20} />
+              </div>
+              <div className="text-right flex-1">
+                <div className="font-bold">مدیر مدرسه</div>
+                <div className="text-xs text-gray-400">تعریف کلاس، معلم و دانش‌آموز</div>
+              </div>
+              <LogIn size={18} className="text-gray-500" />
+            </button>
+
+            <div className="text-center pt-2">
+                <button onClick={() => navigate('/super-admin')} className="text-xs text-gray-600 hover:text-gray-400 transition">
+                    ورود سوپر ادمین (فنی)
+                </button>
+            </div>
           </div>
         </div>
       </div>

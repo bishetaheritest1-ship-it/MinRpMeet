@@ -26,7 +26,7 @@ const getActivityIcon = (type?: ActivityType) => {
   }
 };
 
-const VideoTile: React.FC<VideoTileProps> = ({ 
+export const VideoTile: React.FC<VideoTileProps> = ({ 
   participant, 
   isLocal, 
   onClick, 
@@ -44,6 +44,8 @@ const VideoTile: React.FC<VideoTileProps> = ({
       videoRef.current.srcObject = participant.stream;
     }
   }, [participant.stream]);
+
+  const displayName = participant.name || 'کاربر';
 
   return (
     <div 
@@ -71,12 +73,12 @@ const VideoTile: React.FC<VideoTileProps> = ({
           {participant.avatar ? (
              <img 
                src={participant.avatar} 
-               alt={participant.name} 
+               alt={displayName} 
                className="w-full h-full object-cover opacity-70"
              />
           ) : (
              <div className={`rounded-full bg-blue-600 flex items-center justify-center font-bold text-white uppercase shadow-lg aspect-square w-[40%]`}>
-                <span className="text-[1em]">{participant.name.slice(0, 2)}</span>
+                <span className="text-[1em]">{displayName.slice(0, 2)}</span>
              </div>
           )}
         </div>
@@ -121,7 +123,7 @@ const VideoTile: React.FC<VideoTileProps> = ({
         </div>
       )}
 
-      {/* Star Badge (Top Right now to avoid clash) */}
+      {/* Star Badge */}
       {participant.stars > 0 && (
           <div className="absolute top-1 left-1 z-30 flex items-center gap-1 bg-yellow-500/90 text-white text-[9px] px-1.5 py-0.5 rounded-full shadow-lg border border-yellow-300 animate-in zoom-in">
               <Star size={8} fill="currentColor" />
@@ -140,10 +142,10 @@ const VideoTile: React.FC<VideoTileProps> = ({
           {participant.isMuted && <div className="bg-red-500 p-1 rounded text-white"><MicOff size={10} /></div>}
       </div>
 
-      {/* Name Tag (Bottom) - UPDATED STYLE */}
+      {/* Name Tag (Bottom) */}
       <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-[2px] p-1.5 z-20">
         <p className="text-xs font-bold text-white text-center drop-shadow-md truncate px-1">
-            {isLocal ? 'شما' : participant.name}
+            {isLocal ? 'شما' : displayName}
         </p>
       </div>
     </div>
@@ -173,7 +175,6 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
   onKickParticipant,
   onGiveStarParticipant
 }) => {
-  // Reduced base size from 100 to 60 to "halve" the visual impact effectively
   const minTileWidth = 60 + (zoomLevel * 25);
 
   return (
