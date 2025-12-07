@@ -98,9 +98,24 @@ export const TeacherRoom: React.FC = () => {
   // Mock Data & Media
   useEffect(() => {
     if (!currentUser) return;
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(setLocalStream)
-      .catch(console.error);
+    
+    const initMedia = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            setLocalStream(stream);
+        } catch (err) {
+            console.warn("Media access failed in TeacherRoom, retrying...", err);
+            try {
+                // Fallback to audio only
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                setLocalStream(audioStream);
+            } catch (e) {
+                console.warn("No devices found in TeacherRoom. Continuing without media.");
+                setLocalStream(null);
+            }
+        }
+    };
+    initMedia();
 
     const mockStudents: Participant[] = Array.from({ length: 12 }).map((_, i) => ({
       id: `student-${i}`,

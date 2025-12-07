@@ -184,9 +184,23 @@ export const Room: React.FC = () => {
     if (!currentUser) return;
     const initMedia = async () => {
       try {
+        // Attempt to get video and audio
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         setLocalStream(stream);
-      } catch (err) { setError("عدم دسترسی به دوربین/میکروفون."); }
+      } catch (err) { 
+          console.warn("Failed to get camera/mic, trying audio only", err);
+          try {
+              // Fallback: Audio only
+              const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+              setLocalStream(audioStream);
+              setError("دسترسی به دوربین امکان‌پذیر نبود. فقط صدا فعال شد.");
+          } catch (e) {
+              console.warn("No devices found, entering as observer.");
+              setError("دستگاه ورودی (دوربین/میکروفون) یافت نشد. به عنوان شنونده وارد شدید.");
+              // Set null stream to allow app to continue in observer mode
+              setLocalStream(null);
+          }
+      }
     };
     initMedia();
 
@@ -363,7 +377,7 @@ export const Room: React.FC = () => {
                           )}
                           <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white text-[10px] text-center p-1 font-bold truncate">
                               {floatingUser.role === UserRole.TEACHER ? '👨‍🏫 ' : ''}
-                              {floatingUser.name}
+                              {(floatingUser.name || '').slice(0,15)}
                               {floatingUser.isSpeaking && <span className="ml-1 text-green-400">●</span>}
                           </div>
                      </div>
@@ -434,6 +448,7 @@ export const Room: React.FC = () => {
                    <div>
                       <h1 className="font-bold text-sm md:text-lg truncate max-w-[150px]">کلاس ریاضی</h1>
                       {!isMobile && <div className="text-xs text-green-500">آنلاین</div>}
+                      {error && !isMobile && <span className="text-[10px] text-red-500 mr-2">{error}</span>}
                    </div>
                </div>
                
@@ -450,6 +465,13 @@ export const Room: React.FC = () => {
                 <div className="flex-1 relative">
                    {renderMainStage()}
                    <ReactionOverlay reactions={reactions} />
+                   
+                   {/* Mobile Toast Error */}
+                   {error && isMobile && (
+                       <div className="absolute top-4 left-4 right-4 bg-red-500/90 text-white text-xs p-2 rounded-lg text-center backdrop-blur z-50">
+                           {error}
+                       </div>
+                   )}
                 </div>
                 
                 {/* FLOATING CONTROLS FOR MOBILE STUDENT */}
