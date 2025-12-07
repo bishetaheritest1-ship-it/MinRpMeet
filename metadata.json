@@ -1,0 +1,9 @@
+{
+  "name": "MinRpMeet",
+  "description": "A comprehensive classroom management and video conferencing tool designed for online education with admin controls, whiteboard, and chat.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "display-capture"
+  ]
+}
