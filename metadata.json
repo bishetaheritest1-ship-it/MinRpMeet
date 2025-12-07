@@ -1,0 +1,5 @@
+{
+  "name": "MinRoMeet",
+  "description": "A minimal React application displaying a simple greeting.",
+  "requestFramePermissions": []
+}
